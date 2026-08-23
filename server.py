@@ -1,4 +1,4 @@
-import os, sys, io, builtins, http.server, threading, socketserver, urllib
+import os, http.server, threading, socketserver, urllib
 from modules.db.database import create_connection, create_table, insert, fetch_all, addrow, close
 
 # Route Dict
