@@ -27,13 +27,15 @@ def addrow(conn, table, name, type, constraints):
         else:
             print(f'Error editing table: {e}')
 
-def create_table(conn, table):
+def create_table(conn, table, constraints):
     """Create a table if it doesn't exist"""
     try:
         # conn.execute("DROP TABLE IF EXISTS links")
         sql_create_table = """
-        CREATE TABLE IF NOT EXISTS """ + table + """ (
-        id INTEGER PRIMARY KEY AUTOINCREMENT)
+        CREATE TABLE IF NOT EXISTS """ + table + f"""(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            {constraints}
+        )
         """
         conn.execute(sql_create_table)
         conn.commit()
@@ -59,6 +61,7 @@ def fetch_all(conn, table) -> list[Any]:
     try:
         cursor = conn.execute(f"SELECT * FROM {table}")
         rows = cursor.fetchall()
+        # Gets table name first letter and replaces it with uppercase version
         print(f"{table.replace(table[0], table[0].upper(), 1)} in database:")
         for row in rows:
             print(row)
