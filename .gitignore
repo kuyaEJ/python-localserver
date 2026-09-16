@@ -1,5 +1,10 @@
 # Created by codeshack.io
 
+*.o
+*.s
+*.i
+*.bc
+
 ### macOS ###
 .DS_Store
 .AppleDouble

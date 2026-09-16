@@ -12,12 +12,12 @@ def create_connection(db_file):
         print(f'Error connecting to database: {e}')
         return None
 
-def addrow(conn, table, name, type, constraints):
+def addcolumn(conn, table, name, column_type, constraints):
     """Add a column to a table that exists"""
     try:
-        sql_alter = """
-        ALTER TABLE """ + table + """
-        ADD COLUMN """ + name + " " + type + " " + constraints
+        sql_alter = f"""ALTER TABLE {table}
+        ADD COLUMN {name} {column_type} {constraints}
+        """
         conn.execute(sql_alter)
         conn.commit()
         print(f"Added column {name} to {table}")
@@ -31,20 +31,27 @@ def create_table(conn, table, constraints):
     """Create a table if it doesn't exist"""
     try:
         # conn.execute("DROP TABLE IF EXISTS links")
-        sql_create_table = """
-        CREATE TABLE IF NOT EXISTS """ + table + f"""(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            {constraints}
-        )
-        """
+        sql_create_table = ""
+        if len(constraints) > 0:
+            sql_create_table = f"""CREATE TABLE IF NOT EXISTS {table} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                {constraints}
+            )
+            """
+        else:
+            sql_create_table = f"""CREATE TABLE IF NOT EXISTS {table} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT
+            )
+            """
+            
         conn.execute(sql_create_table)
         conn.commit()
-        print(f'Table {table} created or already exists')
+        print(f'Table \'{table}\' created or already exists')
     except Error as e:
         print(f'Error creating table: {e}')
 
 def insert(conn, table, vars, vals):
-    """Insert a new link into the link table"""
+    """Insert a new value into the table"""
     if not vals.strip() or not vars.strip():
         print(f"Values in {table} cannot be empty.")
         return
@@ -54,12 +61,12 @@ def insert(conn, table, vars, vals):
         conn.commit()
         print(f'Inserted {vals} in {table}.')
     except Error as e:
-        print(f'Error inserting link: {e}')
+        print(f'Error inserting value into table {table}: {e}')
 
-def fetch_all(conn, table) -> list[Any]:
+def fetch_all(conn, table, vals) -> list[Any]:
     """Fetch all rows from the links table"""
     try:
-        cursor = conn.execute(f"SELECT * FROM {table}")
+        cursor = conn.execute(f"SELECT {vals} FROM {table}")
         rows = cursor.fetchall()
         # Gets table name first letter and replaces it with uppercase version
         print(f"{table.replace(table[0], table[0].upper(), 1)} in database:")
@@ -70,14 +77,14 @@ def fetch_all(conn, table) -> list[Any]:
         print(f'Error fetching {table}: {e}')
         return []
 
-def remove(conn, table, link_id):
+def remove(conn, table, pkid):
     try:
         sql_delete = f"DELETE FROM {table} WHERE id = ?"
-        cursor = conn.execute(sql_delete, (link_id, ))
+        cursor = conn.execute(sql_delete, (pkid, ))
         if cursor.rowcount > 0:
-            print(f'Deleted row with ID {link_id}')
+            print(f'Deleted row with ID {pkid}')
         else:
-            print(f'No row found with ID {link_id}')
+            print(f'No row found with ID {pkid}')
     except Error as e:
         print(f'Error deleting row: {e}')
 
